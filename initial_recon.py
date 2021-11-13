@@ -35,23 +35,25 @@ def main():
     target_ip = input("Enter the target IP address: ")
     
     use_nmap = "nmap -p- --min-rate=1000 -T4 -sV -sC -v " + target_ip
+    use_nikto = "nikto -D on -h " + target_ip
+    use_enum = "enum4linux -s " +target_ip
     
-    nmap_terminal = "gnome-terminal -- "+ use_nmap +""
-    
-    nmap_output = subprocess.getoutput(use_nmap)
-    # os.system("gnome-terminal -e 'bash -c \"nmap -p- --min-rate=1000 -T4 -sV -sC -v " + target_ip +"; bash\"'")
-    
+    os.system("gnome-terminal -e 'bash -c \"nmap -p- --min-rate=1000 -T4 -sV -sC -v " + target_ip +"; bash\"'"); os.system("gnome-terminal -e 'bash -c \"msfdb-blackarch run; bash\"'"); os.system("gnome-terminal -e 'bash -c \"nikto -D on -h " + target_ip+"; bash\"'"); os.system("gnome-terminal -e 'bash -c \"enum4linux -a " + target_ip+"; bash\"'")
+     #nmap_terminal = "gnome-terminal -- "+ use_nmap +""
     # go into preferences on terminal and find under "Command", "When command exits" and set to "hold the terminal open"
-    subprocess.Popen(nmap_terminal, shell = True)
-    
+    #subprocess.Popen(nmap_terminal, shell = True)
     # print(nmap_output)
+    nmap_output = subprocess.getoutput(use_nmap); nikto_out = subprocess.getoutput(use_nikto); enum_out = subprocess.getoutput(use_enum)
     
     
-    port = "36927"
+    # CHECK FOR PORTS AND EXECUTE MORE RECON
+    ssh_port = "22"
     
-    if port in nmap_output:
-        print("THIS ACTUALLY WORKS")
+    if ssh_port in nmap_output:
+        clear()
+        print("This has port 22 open")
     else:
+        clear()
         print("NOT HERE")
     
 main()

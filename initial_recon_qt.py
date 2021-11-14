@@ -1,40 +1,26 @@
-# This is my attempt for initial recon on a target
+# This is my attempt for initial recon on a target using a GUI
 
-import sys
-import os
-import subprocess
-from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QLabel, QMenu, QToolBar, QSpinBox
-from PyQt5.QtGui import QIcon, QKeySequence
+from tkinter import *
 
-# main
+root = Tk()
 
+intro_1 = Label(root, text="This program conducts initial recon on a target.").grid(row=0, column=0)
+intro_2 = Label(root, text="The program uses NMAP, Nikto, and Enum4Linux.").grid(row=1, column=0)
 
+target_ip = Entry(root, width=30).grid(row=2, column=0)
 
-
-
-target_ip = input("Enter the target IP address: ")
-
-use_nmap = "nmap -p- --min-rate=1000 -T4 -sV -sC -v " + target_ip
-use_nikto = "nikto -D on -h " + target_ip
-use_enum = "enum4linux -s " +target_ip
+target_button = Button(root, text="Submit").grid(row=2, column=1)
 
 
 
-    # nmap_output = subprocess.getoutput(use_nmap); nikto_out = subprocess.getoutput(use_nikto); enum_out = subprocess.getoutput(use_enum)
 
-nmap_output = subprocess.run(use_nmap, stdout=subprocess.PIPE, text=True, shell=True)
+test
 
-    #print(nmap_output.stdout)
 
-    # CHECK FOR PORTS AND EXECUTE MORE RECON
-ssh_port = "22"
 
-#    if ssh_port in nmap_output.stdout:
-#        clear()
-#        print (nmap_output.stdout)
-#        print("Port 22 open, starting some vulnerability testing.\n")
-#        print("Please Wait...")
-#    else:
-#        print (nmap_output.stdout)
-#        print("NO GOOD PORTS TO TEST")
+
+
+
+
+
+root.mainloop()

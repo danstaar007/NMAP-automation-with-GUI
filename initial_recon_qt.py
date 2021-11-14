@@ -24,6 +24,10 @@ nikto_tab = ttk.Frame(parent_tab)
 enum_tab = ttk.Frame(parent_tab)
 parent_tab.add(main_tab, text='Main')
 
+#put frame on screen
+intro_frame.pack()
+input_frame.pack()
+output_frame.pack()
 
 #define functions
 
@@ -39,8 +43,11 @@ def submit_ip():
     #remove text in the target_ip box
     target_ip.delete(0,END)
 
+submit_ip = tkinter.Button(input_frame, text='Submit', command=submit_ip)
+submit_ip.grid(row=1, column=1, padx=15)
 
 
+#pass parameter with lambda
 
 #create other frames for application
 

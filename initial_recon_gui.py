@@ -35,28 +35,25 @@ parent_tab.add(enum_tab, text='SMB')
 
 #clear frames
 
-#run program / submit ip
+####### run program / submit ip ######
 def submit_ip():
     global target_ip 
     print(target_ip)
     both_checked = checkbox_nikto.get() + checkbox_enum.get() 
     if both_checked == 2:
-            exec_nmap()
-            exec_nikto()
-            exec_enum()
+            threading.Thread(target=exec_nmap).start()
+            threading.Thread(target=exec_nikto).start()
+            threading.Thread(target=exec_enum).start()
     elif checkbox_enum.get() == 1:
-            exec_nmap()
-            exec_enum()
+            threading.Thread(target=exec_nmap).start()
+            threading.Thread(target=exec_enum).start()
     elif checkbox_nikto.get() == 1:
-            exec_nmap()
-            exec_nikto() 
+            threading.Thread(target=exec_nmap).start()
+            threading.Thread(target=exec_nikto).start()
     else:
-            nmap_threading()
+            threading.Thread(target=exec_nmap).start()
 
-#define functions
-
-
-    
+####### define functions ######   
 def exec_nmap():
         #use nmap
     
@@ -73,10 +70,10 @@ def exec_nmap():
     #display all results
     nmap_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
 
-# Install vulners database
-#git clone https://github.com/vulnersCom/nmap-vulners /usr/share/nmap/scripts/vulners && nmap --script-updatedb
+    # Install vulners database
+    #git clone https://github.com/vulnersCom/nmap-vulners /usr/share/nmap/scripts/vulners && nmap --script-updatedb
 
-    #check for interesting ports
+###### check for interesting ports ########
     ssh_port = '22/tcp'
     
     if ssh_port in nmap_output.stdout:
@@ -86,8 +83,7 @@ def exec_nmap():
             ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
             ports_label.pack()   
 
-def nmap_threading():
-    threading.Thread(target=exec_nmap).start()
+
 
 
 def exec_nikto():
@@ -132,7 +128,7 @@ def load_timer():
     ports_frame.pack()   
 
 
-#main tab content
+######## main tab content ##########
 intro_frame = tkinter.Frame(main_tab, pady=15)
 input_frame = tkinter.Frame(main_tab, padx=20, pady=10)
 ports_frame = tkinter.Frame(main_tab, pady=30)
@@ -140,14 +136,13 @@ include_frame = Frame(main_tab, pady=20, highlightbackground="Black", borderwidt
 loading_frame = Frame(main_tab)
 loading_timer = Canvas(loading_frame, height=100, width=100)
 
-
 #define labels 
 intro_1 = Label(intro_frame, text="This program conducts initial recon on a target.")
 intro_2 = Label(intro_frame, text="The program uses NMAP, Nikto, and Enum4Linux.")
 input_text = tkinter.Label(input_frame, text='What is the IP address to the target')
+
 #include checkboxes for nikto and enum
 include_label =Label(include_frame, text='Would you like to include:')
-
 include_nikto = Checkbutton(include_frame, text='Nikto', variable=checkbox_nikto)
 include_enum = Checkbutton(include_frame, text='Enum4Linux', variable=checkbox_enum)
 
@@ -165,16 +160,9 @@ parent_tab.pack(expand=1, fill='both')
 intro_frame.pack()
 input_frame.pack()
 include_frame.pack()
-
-
-
-
-
 nmap_out_frame.pack(side='top', expand=True, fill='both', padx=25, pady=25)
 nikto_out_frame.pack(side='top', expand=True, fill='both', pady=25, padx=25)
 enum_out_frame.pack(side='top', expand=True, fill='both', pady=25, padx=25)
-
-
 
 #put main tab labels onto screen
 intro_1.grid(row=0, column=0)

@@ -25,10 +25,16 @@ main_tab = ttk.Frame(parent_tab)
 nmap_tab = ttk.Frame(parent_tab)
 nikto_tab = ttk.Frame(parent_tab)
 enum_tab = ttk.Frame(parent_tab)
+more_tab = Frame(parent_tab)
+post_tab = Frame(parent_tab)
+
+#add tabs to parent
 parent_tab.add(main_tab, text='Main')
 parent_tab.add(nmap_tab, text='NMAP')
 parent_tab.add(nikto_tab, text='Nikto')
-parent_tab.add(enum_tab, text='SMB')
+parent_tab.add(enum_tab, text='enum4Linux')
+
+parent_tab.add(post_tab, text='Post Exploit')
 
 
 #clear frames
@@ -56,11 +62,11 @@ def exec_nmap():
         #use nmap
     
     global target_ip
-    use_nmap = "nmap -p- --min-rate=1000 -T4 -sV -sC -v --script=vulners/vulners.nse " + target_ip.get()
+    use_nmap = "nmap -p- --min-rate=1000 -T4 -sV -sC -v " + target_ip.get() # --script=vulners/vulners.nse (if you want to see vulners associated with)
     nmap_output = subprocess.Popen(use_nmap, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True, bufsize=1, universal_newlines=True)
 ###### enable real-time output in frame ######    
     nmap_output.poll()
-    nmap_results = tkinter.Text(nmap_out_frame, wrap='word')
+    nmap_results = tkinter.Text(nmap_out_frame, wrap='word', bg='Black', fg='Green')
 
     while True:
        nmap_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
@@ -75,15 +81,27 @@ def exec_nmap():
     #git clone https://github.com/vulnersCom/nmap-vulners /usr/share/nmap/scripts/vulners && nmap --script-updatedb
 
 ###### check for interesting ports ########
-    ssh_port = '22/tcp'
+    ssh_port = 'a'
     
-    if ssh_port in nmap_output.stdout:
+    if ssh_port in nmap_results.search(ssh_port, '1.0', stopindex=END):   ### CANT FIGURE OUT HOW TO SEARCH NMAP RESULTS BECAUSE IT IS REAL TIME
             ports_label = tkinter.Label(ports_frame, pady=50, text='Port 22 is open, running further recon')
+            test = Label(port_22_frame, text='TESTING')
+            test.pack() 
+            parent_tab.add(more_tab, text='Ports Output')
+            
+            test = Label(port_22_frame, text='TESTING')
+            test.pack()
             ports_label.pack()
+            
+            
+            
+
     else:
             ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
-            ports_label.pack()   
+            ports_label.pack()  
+           
     ports_frame.pack()
+    port_22_frame.pack()
 
 
 
@@ -94,7 +112,7 @@ def exec_nikto():
     nikto_output = subprocess.Popen(use_nikto, stdout=subprocess.PIPE, text=True, shell=True, bufsize=1, universal_newlines=True)
 ###### enable real-time output in frame ###### 
     nikto_output.poll()
-    nikto_results = tkinter.Text(nikto_out_frame, wrap='word')
+    nikto_results = tkinter.Text(nikto_out_frame, wrap='word', bg='Black', fg='Green')
 
     while True:
         nikto_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
@@ -103,14 +121,14 @@ def exec_nikto():
         nikto_results.see(END)
         nikto_results.update_idletasks()
         if not output and nikto_output.poll is not None: break
-
+    ##  look at ports, nikto only runs on port 80 unless you specify using "-p"
 
 def exec_enum():
     #use enum
-    use_enum = "enum4linux -S " + target_ip.get()
+    use_enum = "enum4linux -a -v " + target_ip.get()
     enum_output = subprocess.Popen(use_enum, stdout=subprocess.PIPE, text=True, shell=True, bufsize=1, universal_newlines=True)
     enum_output.poll()
-    enum_results = tkinter.Text(enum_out_frame, wrap='word')
+    enum_results = tkinter.Text(enum_out_frame, wrap='word', bg='Black', fg='Green')
     
     ###### enable real-time output in frame ###### 
     while True:
@@ -173,14 +191,18 @@ nikto_out_frame = tkinter.Frame(nikto_tab)
 #enum tab content
 enum_out_frame = tkinter.Frame(enum_tab)
 
+#port 22 tab content
+port_22_frame = Frame(more_tab)
+
 #put frame on screen
 parent_tab.pack(expand=1, fill='both')
 intro_frame.pack()
 input_frame.pack()
 include_frame.pack()
-nmap_out_frame.pack(side='top', expand=True, fill='both', padx=25, pady=25)
-nikto_out_frame.pack(side='top', expand=True, fill='both', pady=25, padx=25)
-enum_out_frame.pack(side='top', expand=True, fill='both', pady=25, padx=25)
+nmap_out_frame.pack(side='top', expand=True, fill='both')
+nikto_out_frame.pack(side='top', expand=True, fill='both')
+enum_out_frame.pack(side='top', expand=True, fill='both')
+port_22_frame.pack(side='top', expand=True, fill='both')
 
 #put main tab labels onto screen
 intro_1.grid(row=0, column=0)
@@ -198,20 +220,17 @@ target_ip.grid(row=1, column=0, ipady=3)
 submit_ip = tkinter.Button(input_frame, text='Submit', command=submit_ip)
 submit_ip.grid(row=1, column=1, padx=15)
 
+#menu bar
+menubar = Menu(root, activebackground='Black', activeforeground='White')
+file = Menu(menubar, tearoff=1, activebackground='Black', activeforeground='White')
+file.add_command(label='New')
+file.add_command(label='Save')
+menubar.add_cascade(label='File', menu=file)
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
+root.config(menu=menubar)
 root.mainloop()
 

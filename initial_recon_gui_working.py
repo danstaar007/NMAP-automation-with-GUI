@@ -21,6 +21,7 @@ checkbox_enum = IntVar()
 
 
 
+
 #create tabs
 parent_tab = ttk.Notebook(root)
 main_tab = ttk.Frame(parent_tab)

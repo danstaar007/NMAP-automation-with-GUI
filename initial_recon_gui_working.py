@@ -19,9 +19,6 @@ target_ip = ['']
 checkbox_nikto = IntVar()
 checkbox_enum = IntVar()
 
-test
-
-
 #create tabs
 parent_tab = ttk.Notebook(root)
 main_tab = ttk.Frame(parent_tab)
@@ -61,13 +58,10 @@ def exec_nmap():
     global target_ip
     use_nmap = "nmap -p- --min-rate=1000 -T4 -sV -sC -v --script=vulners/vulners.nse " + target_ip.get()
     nmap_output = subprocess.Popen(use_nmap, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True, bufsize=1, universal_newlines=True)
+###### enable real-time output in frame ######    
     nmap_output.poll()
-    #load_timer()
-    #nmap_output = subprocess.Popen(use_nmap, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
-    #stdout, stderr = nmap_output.communicate()
     nmap_results = tkinter.Text(nmap_out_frame, wrap='word')
-    #nmap_results.insert('1.0', nmap_output.stdout)
-    #nmap_results.insert('1.0', f'Output: {stdout}\nErrors: {stderr}')
+
     while True:
        nmap_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
        output = nmap_output.stdout.readline()
@@ -75,8 +69,7 @@ def exec_nmap():
        nmap_results.see(END)
        nmap_results.update_idletasks()
        if not output and nmap_output.poll is not None: break
-    #display all results
-    #nmap_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
+#### end real-time output ####
 
     # Install vulners database
     #git clone https://github.com/vulnersCom/nmap-vulners /usr/share/nmap/scripts/vulners && nmap --script-updatedb
@@ -98,18 +91,35 @@ def exec_nikto():
         #use nikto
     global target_ip    
     use_nikto = "nikto -D on -h " + target_ip.get()
-    nikto_output = subprocess.run(use_nikto, stdout=subprocess.PIPE, text=True, shell=True)
+    nikto_output = subprocess.Popen(use_nikto, stdout=subprocess.PIPE, text=True, shell=True, bufsize=1, universal_newlines=True)
+###### enable real-time output in frame ###### 
+    nikto_output.poll()
     nikto_results = tkinter.Text(nikto_out_frame, wrap='word')
-    nikto_results.insert('1.0', nikto_output.stdout)
-    nikto_results.pack(side='top', expand=True, fill='both',padx=25, pady=25)
+
+    while True:
+        nikto_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
+        output = nikto_output.stdout.readline()
+        nikto_results.insert(END, output)
+        nikto_results.see(END)
+        nikto_results.update_idletasks()
+        if not output and nikto_output.poll is not None: break
+
 
 def exec_enum():
     #use enum
     use_enum = "enum4linux -S " + target_ip.get()
-    enum_output = subprocess.run(use_enum, stdout=subprocess.PIPE, text=True, shell=True)
+    enum_output = subprocess.Popen(use_enum, stdout=subprocess.PIPE, text=True, shell=True, bufsize=1, universal_newlines=True)
+    enum_output.poll()
     enum_results = tkinter.Text(enum_out_frame, wrap='word')
-    enum_results.insert('1.0', enum_output.stdout)
-    enum_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
+    
+    ###### enable real-time output in frame ###### 
+    while True:
+        enum_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
+        output = enum_output.stdout.readline()
+        enum_results.insert(END, output)
+        enum_results.see(END)
+        enum_results.update_idletasks()
+        if not output and enum_output.poll is not None: break
 
 
     #remove text in the target_ip box

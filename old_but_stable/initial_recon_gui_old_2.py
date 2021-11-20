@@ -91,7 +91,9 @@ def exec_nmap():
     else:
             ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
             ports_label.pack()   
+
     ports_frame.pack()
+    
 
 
 

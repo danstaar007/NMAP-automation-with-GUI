@@ -24,8 +24,8 @@ checkbox_enum = IntVar()
 parent_tab = ttk.Notebook(root)
 main_tab = ttk.Frame(parent_tab)
 nmap_tab = ttk.Frame(parent_tab)
-nikto_tab = ttk.Frame(parent_tab)
-enum_tab = ttk.Frame(parent_tab)
+#nikto_tab = ttk.Frame(parent_tab)
+#enum_tab = ttk.Frame(parent_tab)
 ftp_tab = Frame(parent_tab)
 post_tab = Frame(parent_tab)
 ssh_tab = Frame(parent_tab)
@@ -40,8 +40,8 @@ smb_tab = Frame(parent_tab)
 #add tabs to parent
 parent_tab.add(main_tab, text='Main')
 parent_tab.add(nmap_tab, text='NMAP')
-parent_tab.add(nikto_tab, text='Nikto')
-parent_tab.add(enum_tab, text='enum4Linux')
+#parent_tab.add(nikto_tab, text='Nikto')
+#parent_tab.add(enum_tab, text='enum4Linux')
 
 
 
@@ -75,7 +75,7 @@ def exec_nmap():
 ###### enable real-time output in frame ######    
     nmap_output.poll()
     nmap_results = tkinter.Text(nmap_out_frame, wrap='word', bg='Black', fg='Green')
-    include_frame.destroy()
+    #include_frame.destroy()
 
     while True:
        nmap_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
@@ -92,7 +92,7 @@ def exec_nmap():
 ###### check for interesting ports #########     need to check multiple inputs
 # 21/FTP, 22/SSH, 23/telnet, (25, 465, 587) smtp, 53/DNS, (80,443) http, (135, 593) MSRPC, (137,138,139) NetBios, (139,445) SMB, 
     
-    ftp_port = 'sent'; ssh_port = 'sent'; telnet_port = '23/tcp'; smtp_port = ['25/tcp', ' 465/tcp', '587/tcp']; dns_port = '53/tcp'
+    ftp_port = '21/tcp'; ssh_port = '22/tcp'; telnet_port = '23/tcp'; smtp_port = ['25/tcp', ' 465/tcp', '587/tcp']; dns_port = '53/tcp'
     http_port = ['80', '443']; msrpc_port = ['135', '593']; netbios_port = ['137', '138', '139']; smb_port = ['139', '445'] 
     
     #all_ports = [ftp_port, ssh_port, telnet_port, smtp_port, dns_port, http_port, msrpc_port, netbios_port, smtp_port]
@@ -132,7 +132,7 @@ def exec_nmap():
         pass  
 
 #### SMTP port stuff
-    if '25/tcp' or ' 465/tcp'or '587/tcp' or 'sent' in nmap_results.get('1.0', END):
+    if '25/tcp' or ' 465/tcp'or '587/tcp' in nmap_results.get('1.0', END):
             parent_tab.add(smtp_tab, text='SMTP')
             telnet_label = Label(ports_frame, text='SMTP is open').pack(anchor=W)
             ###add stuff to the tab
@@ -155,16 +155,22 @@ def exec_nmap():
 
 #### http port stuff
     if '80/tcp' or ' 443/tcp'or '8080/tcp' in nmap_results.get('1.0', END):
-            parent_tab.add(http_tab, text='HTTP')
+            parent_tab.add(http_tab, text='Nikto')
             telnet_label = Label(ports_frame, text='HTTP is open').pack(anchor=W)
             ###add stuff to the tab
             threading.Thread(target=exec_nikto).start()   
+    elif '80/tcp' or ' 443/tcp'or '8080/tcp' in nmap_results.get('1.0', END):
+            parent_tab.add(http_tab, text='Nikto')
+            telnet_label = Label(ports_frame, text='HTTP is open').pack(anchor=W)
+            ###add stuff to the tab
+            threading.Thread(target=exec_nikto).start()  
+    
     else:
         #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
         pass     
 
 #### msrpc port stuff
-    if '135/tcp' or ' 593/tcp' or 'sent' in nmap_results.get('1.0', END):
+    if '135/tcp' or ' 593/tcp' in nmap_results.get('1.0', END):
             parent_tab.add(msrpc_tab, text='MSRPC')
             telnet_label = Label(ports_frame, text='MSRPC is open').pack(anchor=W)
             ###add stuff to the tab
@@ -198,7 +204,7 @@ def exec_nmap():
     parent_tab.add(post_tab, text='Post Exploit')
     
 #### smb port stuff
-    if '139/tcp' or ' 445/tcp' or 'sent' in nmap_results.get('1.0', END):
+    if '139/tcp' or ' 445/tcp' in nmap_results.get('1.0', END):
             parent_tab.add(smb_tab, text='SMB')
             telnet_label = Label(ports_frame, text='SMB is open').pack(anchor=W)
             ###add stuff to the tab
@@ -281,7 +287,7 @@ def load_timer():
 intro_frame = tkinter.Frame(main_tab, pady=15)
 input_frame = tkinter.Frame(main_tab, padx=20, pady=10)
 ports_frame = tkinter.Frame(main_tab, pady=30)
-include_frame = Frame(main_tab, pady=20, highlightbackground="Black", borderwidth=2, relief=RIDGE)
+#include_frame = Frame(main_tab, pady=20, highlightbackground="Black", borderwidth=2, relief=RIDGE)
 loading_frame = Frame(main_tab)
 loading_timer = Canvas(loading_frame, height=100, width=100)
 
@@ -291,18 +297,18 @@ intro_2 = Label(intro_frame, text="The program uses NMAP, Nikto, and Enum4Linux.
 input_text = tkinter.Label(input_frame, text='What is the IP address to the target')
 
 #include checkboxes for nikto and enum
-include_label =Label(include_frame, text='Would you like to include:')
-include_nikto = Checkbutton(include_frame, text='Nikto', variable=checkbox_nikto)
-include_enum = Checkbutton(include_frame, text='Enum4Linux', variable=checkbox_enum)
+#include_label =Label(include_frame, text='Would you like to include:')
+#include_nikto = Checkbutton(include_frame, text='Nikto', variable=checkbox_nikto)
+#include_enum = Checkbutton(include_frame, text='Enum4Linux', variable=checkbox_enum)
 
 #nmap tab content
 nmap_out_frame = tkinter.Frame(nmap_tab)
 
 #nikto tab content
-nikto_out_frame = tkinter.Frame(nikto_tab)
+#nikto_out_frame = tkinter.Frame(nikto_tab)
 
 #enum tab content
-enum_out_frame = tkinter.Frame(enum_tab)
+#enum_out_frame = tkinter.Frame(enum_tab)
 
 #ports tab content
 ftp_frame = Frame(ftp_tab)
@@ -319,18 +325,18 @@ smb_frame = Frame(smb_tab)
 parent_tab.pack(expand=1, fill='both')
 intro_frame.pack()
 input_frame.pack()
-include_frame.pack()
+#include_frame.pack()
 nmap_out_frame.pack(side='top', expand=True, fill='both')
-nikto_out_frame.pack(side='top', expand=True, fill='both')
-enum_out_frame.pack(side='top', expand=True, fill='both')
+#nikto_out_frame.pack(side='top', expand=True, fill='both')
+#enum_out_frame.pack(side='top', expand=True, fill='both')
 
 
 #put main tab labels onto screen
 intro_1.grid(row=0, column=0)
 intro_2.grid(row=1, column=0)
-include_label.grid(row=2, column=0, rowspan=2, padx=10)
-include_nikto.grid(row=2, column=1, pady=[0,5], sticky='W')
-include_enum.grid(row=3, column=1, sticky='W', padx=[0,10])
+#include_label.grid(row=2, column=0, rowspan=2, padx=10)
+#include_nikto.grid(row=2, column=1, pady=[0,5], sticky='W')
+#include_enum.grid(row=3, column=1, sticky='W', padx=[0,10])
 
 #input on main tab
 input_text.grid(row=0, columnspan=2, pady=10, padx=5, sticky='WE')

@@ -144,7 +144,7 @@ def exec_nmap():
             #ports_label = tkinter.Label(ports_frame, text='There are no good ports to test').grid(row=1, column=0, sticky='W')
 
     #### Word press
-    if 'Word Press' in nmap_results.get('1.0', END):
+    if 'WordPress' in nmap_results.get('1.0', END):
             parent_tab.add(wp_map_tab, text='WP Audit')
 
             #change port to green 

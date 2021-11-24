@@ -12,4 +12,6 @@ Trying to expand this script to automate more than just initial steps in testing
 
 I am learning how to program Python and writing shortcuts to use material as I go to college.
 
+python alpha_sec.py
+
 

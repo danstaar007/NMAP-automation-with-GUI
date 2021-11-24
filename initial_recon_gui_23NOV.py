@@ -10,6 +10,8 @@ import time
 import threading
 import numpy as np
 from PIL import Image, ImageTk
+sourceFileDir = os.path.dirname(os.path.abspath(__file__)) #use to set the main dir to access subs
+
 
 #create root frame
 root = Tk()
@@ -47,11 +49,11 @@ parent_tab.add(nmap_tab, text='NMAP')
 #parent_tab.add(enum_tab, text='enum4Linux')
 
 ### images for ports label
-yellow_loc = Image.open('/root/github/Alpha-Sec/images/yellow_button.png')
+yellow_loc = Image.open(os.path.join(sourceFileDir, 'image_folder', 'yellow_button.png')) ##use os.path.join(sourceFileDir, 'image_folder', 'yellow_button.png') to get into subdir
 resized_yellow = yellow_loc.resize((20,20), Image.ANTIALIAS)
 yellow = ImageTk.PhotoImage(resized_yellow)
 
-green_loc = Image.open('/root/github/Alpha-Sec/images/green_button.png')
+green_loc = Image.open(os.path.join(sourceFileDir, 'image_folder', 'green_button.png'))
 resized_green = green_loc.resize((20,20), Image.ANTIALIAS)
 green = ImageTk.PhotoImage(resized_green)
 

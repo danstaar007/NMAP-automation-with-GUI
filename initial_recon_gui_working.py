@@ -9,6 +9,7 @@ from tkinter import ttk
 import time
 import threading
 import numpy as np
+from PIL import Image, ImageTk
 
 #create root frame
 root = Tk()
@@ -20,6 +21,7 @@ target_ip = ['']
 checkbox_nikto = IntVar()
 checkbox_enum = IntVar()
 
+
 #create tabs
 parent_tab = ttk.Notebook(root)
 main_tab = ttk.Frame(parent_tab)
@@ -28,7 +30,7 @@ nmap_tab = ttk.Frame(parent_tab)
 #enum_tab = ttk.Frame(parent_tab)
 ftp_tab = Frame(parent_tab)
 post_tab = Frame(parent_tab)
-ssh_tab = Frame(parent_tab)
+ssh_audit_tab = Frame(parent_tab)
 telnet_tab = Frame(parent_tab)
 smtp_tab = Frame(parent_tab)
 dns_tab = Frame(parent_tab)
@@ -36,6 +38,7 @@ http_tab = Frame(parent_tab)
 msrpc_tab = Frame(parent_tab)
 netbios_tab = Frame(parent_tab)
 smb_tab = Frame(parent_tab)
+wp_map_tab = Frame(parent_tab)
 
 #add tabs to parent
 parent_tab.add(main_tab, text='Main')
@@ -43,6 +46,14 @@ parent_tab.add(nmap_tab, text='NMAP')
 #parent_tab.add(nikto_tab, text='Nikto')
 #parent_tab.add(enum_tab, text='enum4Linux')
 
+### images for ports label
+yellow_loc = Image.open('/root/github/Alpha-Sec/images/yellow_button.png')
+resized_yellow = yellow_loc.resize((20,20), Image.ANTIALIAS)
+yellow = ImageTk.PhotoImage(resized_yellow)
+
+green_loc = Image.open('/root/github/Alpha-Sec/images/green_button.png')
+resized_green = green_loc.resize((20,20), Image.ANTIALIAS)
+green = ImageTk.PhotoImage(resized_green)
 
 
 #clear frames
@@ -50,6 +61,7 @@ parent_tab.add(nmap_tab, text='NMAP')
 ####### run program / submit ip ######
 def submit_ip():
     global target_ip 
+    global ftp_port_label
     print(target_ip)
     both_checked = checkbox_nikto.get() + checkbox_enum.get() 
     if both_checked == 2:
@@ -77,6 +89,8 @@ def exec_nmap():
     nmap_results = tkinter.Text(nmap_out_frame, wrap='word', bg='Black', fg='Green')
     #include_frame.destroy()
 
+    
+    
     while True:
        nmap_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
        output = nmap_output.stdout.readline()
@@ -93,129 +107,155 @@ def exec_nmap():
 # 21/FTP, 22/SSH, 23/telnet, (25, 465, 587) smtp, 53/DNS, (80,443) http, (135, 593) MSRPC, (137,138,139) NetBios, (139,445) SMB, 
     
     ftp_port = '21/tcp'; ssh_port = '22/tcp'; telnet_port = '23/tcp'; smtp_port = ['25/tcp', ' 465/tcp', '587/tcp']; dns_port = '53/tcp'
-    http_port = ['80', '443']; msrpc_port = ['135', '593']; netbios_port = ['137', '138', '139']; smb_port = ['139', '445'] 
+    http_port = ['80', '443', '8080']; msrpc_port = ['135', '593']; netbios_port = ['137', '138', '139']; smb_port = ['139', '445'] 
     
     #all_ports = [ftp_port, ssh_port, telnet_port, smtp_port, dns_port, http_port, msrpc_port, netbios_port, smtp_port]
     #print(all_ports[0])
 
 ### FTP port stuff
     if ftp_port in nmap_results.get('1.0', END):
-        parent_tab.add(ftp_tab, text='21/FTP')
-        ftp_port_label = Label(ports_frame, text='Port 21 is active').pack(anchor=W)
- ###add stuff to the tab
+        parent_tab.add(ftp_tab, text='FTP')
+
+        #change port to green 
+        ftp_port_label.configure(image=green)
+        ftp_port_label.image=green
+        
+    ### add stuff to the tab
         test = Label(ftp_frame, text='TESTING')
         test.pack()   
+        
     else:
         #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
         pass  
 
-### SSH port stuff    
+    ### SSH port stuff    
     if ssh_port in nmap_results.get('1.0', END):   
-            ssh_label = tkinter.Label(ports_frame, text='Port 22 is open, running further recon').pack(anchor=W)
-            parent_tab.add(ssh_tab, text='22/SSH')
+            parent_tab.add(ssh_audit_tab, text='SSH Audit')
+
+            #change port to green 
+            ssh_label.configure(image=green)
+            ssh_label.image=green
         ###add stuff to the tab
-            test = Label(ssh_frame, text='TESTING')
-            test.pack()    
+            threading.Thread(target=exec_ssh_audit).start()
+            
     else:
             pass
             #ports_label = tkinter.Label(ports_frame, text='There are no good ports to test').grid(row=1, column=0, sticky='W')
 
-#### Telnet port stuff
+    #### Word press
+    if 'Word Press' in nmap_results.get('1.0', END):
+            parent_tab.add(wp_map_tab, text='WP Audit')
+
+            #change port to green 
+            wp_audit_label.configure(image=green)
+            wp_audit_label.image=green
+    #### add stuff to tab
+            threading.Thread(target=exec_wordpress_map).start()        
+
+
+    #### Telnet port stuff
     if telnet_port in nmap_results.get('1.0', END):
-            parent_tab.add(telnet_tab)
-            telnet_label = Label(ports_frame, text='Port 23 is open').pack(anchor=W)
-            ###add stuff to the tab
+            parent_tab.add(telnet_tab, text='Telnet')
+
+            #change port to green 
+            telnet_label.configure(image=green)
+            telnet_label.image=green
+        ###add stuff to the tab
             test = Label(telnet_tab, text='TESTING')
             test.pack()   
     else:
         #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
         pass  
 
-#### SMTP port stuff
-    if '25/tcp' or ' 465/tcp'or '587/tcp' in nmap_results.get('1.0', END):
-            parent_tab.add(smtp_tab, text='SMTP')
-            telnet_label = Label(ports_frame, text='SMTP is open').pack(anchor=W)
+    #### SMTP port stuff
+    for port in smb_port:
+        if port in nmap_results.get('1.0', END):
+                parent_tab.add(smtp_tab, text='SMTP')
+                #change port to green 
+                smtp_label.configure(image=green)
+                smtp_label.image=green
             ###add stuff to the tab
-            test = Label(smtp_tab, text='TESTING')
-            test.pack()   
-    else:
-        #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
-        pass   
+                test = Label(smtp_tab, text='TESTING')
+                test.pack()   
+        else:
+            #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
+            pass   
 
-#### DNS port stuff
+    #### DNS port stuff
     if dns_port in nmap_results.get('1.0', END):
-            parent_tab.add(dns_tab)
-            telnet_label = Label(ports_frame, text='Port 53 is open').pack(anchor=W)
-            ###add stuff to the tab
+            parent_tab.add(dns_tab, text='DNS')
+            #change port to green 
+            dns_label.configure(image=green)
+            dns_label.image=green
+         ###add stuff to the tab
             test = Label(dns_tab, text='TESTING')
             test.pack()   
     else:
         #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
         pass  
 
-#### http port stuff
-    if '80/tcp' or ' 443/tcp'or '8080/tcp' in nmap_results.get('1.0', END):
-            parent_tab.add(http_tab, text='Nikto')
-            telnet_label = Label(ports_frame, text='HTTP is open').pack(anchor=W)
-            ###add stuff to the tab
-            threading.Thread(target=exec_nikto).start()   
-    elif '80/tcp' or ' 443/tcp'or '8080/tcp' in nmap_results.get('1.0', END):
-            parent_tab.add(http_tab, text='Nikto')
-            telnet_label = Label(ports_frame, text='HTTP is open').pack(anchor=W)
-            ###add stuff to the tab
-            threading.Thread(target=exec_nikto).start()  
-    
+    #### http port stuff
+    for port in http_port:
+        if port in nmap_results.get('1.0', END):
+                parent_tab.add(http_tab, text='Nikto')
+                #change port to green 
+                http_label.configure(image=green)
+                http_label.image=green
+             ### add stuff to the tab
+                threading.Thread(target=exec_nikto).start()
+
     else:
         #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
         pass     
 
-#### msrpc port stuff
-    if '135/tcp' or ' 593/tcp' in nmap_results.get('1.0', END):
-            parent_tab.add(msrpc_tab, text='MSRPC')
-            telnet_label = Label(ports_frame, text='MSRPC is open').pack(anchor=W)
-            ###add stuff to the tab
-            test = Label(msrpc_tab, text='TESTING')
-            test.pack()   
-    else:
-        #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
-        pass 
+    #### msrpc port stuff
+    for port in msrpc_port:
+        if port in nmap_results.get('1.0', END):
+                parent_tab.add(msrpc_tab, text='MSRPC')
+                #change port to green 
+                msrpc_label.configure(image=green)
+                msrpc_label.image=green
+             ###add stuff to the tab
+                test = Label(msrpc_tab, text='TESTING')
+                test.pack()   
+        else:
+            #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
+            pass 
 
-#### netbios port stuff
-    if '137/tcp' or ' 138/tcp' or '139/tcp' in nmap_results.get('1.0', END):
-            parent_tab.add(netbios_tab, text='Netbios')
-            telnet_label = Label(ports_frame, text='Netbios is open').pack(anchor=W)
-            ###add stuff to the tab
-            test = Label(netbios_tab, text='TESTING')
-            test.pack()   
-    else:
-        #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
-        pass 
+    #### netbios port stuff
+    for port in netbios_port:
+        if port in nmap_results.get('1.0', END):
+                parent_tab.add(netbios_tab, text='Netbios')
+                #change port to green 
+                netbios_label.configure(image=green)
+                netbios_label.image=green
+             ###add stuff to the tab
+                test = Label(netbios_tab, text='TESTING')
+                test.pack()   
+        else:
+            #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
+            pass     
 
-    ports_frame.pack()
-    ftp_frame.pack(side='top', expand=True, fill='both')
-    ssh_frame.pack(side='top', expand=True, fill='both')
-    telnet_frame.pack(side='top', expand=True, fill='both')
-    smtp_frame.pack(side='top', expand=True, fill='both')
-    dns_frame.pack(side='top', expand=True, fill='both')
-    http_frame.pack(side='top', expand=True, fill='both')
-    msrpc_frame.pack(side='top', expand=True, fill='both')
-    netbios_frame.pack(side='top', expand=True, fill='both')
-    smtp_frame.pack(side='top', expand=True, fill='both')
-    parent_tab.add(post_tab, text='Post Exploit')
+    #### smb port stuff
+    for port in smb_port:
+        if port in nmap_results.get('1.0', END):
+                parent_tab.add(smb_tab, text='SMB')
+                #change port to green 
+                smb_label.configure(image=green)
+                smb_label.image=green
+             ###add stuff to the tab
+                threading.Thread(target=exec_enum).start()  
+        else:
+            #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
+            pass     
+
     
-#### smb port stuff
-    if '139/tcp' or ' 445/tcp' in nmap_results.get('1.0', END):
-            parent_tab.add(smb_tab, text='SMB')
-            telnet_label = Label(ports_frame, text='SMB is open').pack(anchor=W)
-            ###add stuff to the tab
-            threading.Thread(target=exec_enum).start()  
-    else:
-        #ports_label = tkinter.Label(ports_frame, pady=50, text='There are no good ports to test')
-        pass     
 
+
+    ### pack frames 
     ports_frame.pack()
     ftp_frame.pack(side='top', expand=True, fill='both')
-    ssh_frame.pack(side='top', expand=True, fill='both')
+    ssh_audit_frame.pack(side='top', expand=True, fill='both')
     telnet_frame.pack(side='top', expand=True, fill='both')
     smtp_frame.pack(side='top', expand=True, fill='both')
     dns_frame.pack(side='top', expand=True, fill='both')
@@ -223,6 +263,9 @@ def exec_nmap():
     msrpc_frame.pack(side='top', expand=True, fill='both')
     netbios_frame.pack(side='top', expand=True, fill='both')
     smb_frame.pack(side='top', expand=True, fill='both')
+    wp_map_frame.pack(side='top', expand=True, fill='both')
+    parent_tab.add(post_tab, text='Post Exploit')
+
 
 def exec_nikto():
         #use nikto
@@ -261,7 +304,34 @@ def exec_enum():
 
     #remove text in the target_ip box
     target_ip.delete(0,END)
-    
+
+def exec_ssh_audit():
+    ssh_audit_output = subprocess.Popen("ssh-audit " + target_ip.get(), stdout=subprocess.PIPE, text=True, shell=True, bufsize=1, universal_newlines=True)
+## realtime output
+    ssh_audit_output.poll()
+    ssh_results = Text(ssh_audit_frame, wrap='word', bg='Black', fg='Green')
+    while True:
+        ssh_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
+        output_ssh = ssh_audit_output.stdout.readline() 
+        ssh_results.insert(END, output_ssh)   
+        ssh_results.see(END)
+        ssh_results.update_idletasks
+        if not output_ssh and ssh_audit_output.poll is not None: break
+
+
+def exec_wordpress_map():
+    wp_map_output = subprocess.Popen("cmsmap -f W -v " + target_ip.get(), stdout=subprocess.PIPE, text=True, shell=True, bufsize=1, universal_newlines=True)
+## realtime output
+    wp_map_output.poll()
+    wp_map_results = Text(wp_map_frame, wrap='word', bg='Black', fg='Green')
+    while True:
+        wp_map_results.pack(side='top', expand=True, fill='both', padx=25, pady=25)
+        output_ssh = wp_map_output.stdout.readline() 
+        wp_map_results.insert(END, output_ssh)   
+        wp_map_results.see(END)
+        wp_map_results.update_idletasks
+        if not output_ssh and wp_map_output.poll is not None: break
+
 def load_timer():
     animation = ["[■□□□□□□□□□]","[■■□□□□□□□□]", "[■■■□□□□□□□]", "[■■■■□□□□□□]", "[■■■■■□□□□□]", "[■■■■■■□□□□]", "[■■■■■■■□□□]", "[■■■■■■■■□□]", "[■■■■■■■■■□]", "[■■■■■■■■■■]"]
 
@@ -291,6 +361,30 @@ ports_frame = tkinter.Frame(main_tab, pady=30)
 loading_frame = Frame(main_tab)
 loading_timer = Canvas(loading_frame, height=100, width=100)
 
+###### show the ports on the main tab as yellow
+ftp_port_label = Label(ports_frame, text=' ::::: FTP // 21', image=yellow, compound=LEFT)
+ftp_port_label.pack(anchor=W)
+ssh_label = tkinter.Label(ports_frame, text=' ::::: SSH // 22', image=yellow, compound=LEFT)
+ssh_label.pack(anchor=W)
+wp_audit_label = Label(ports_frame, text=' ::::: Word Press', image=yellow, compound=LEFT)
+wp_audit_label.pack(anchor=W)
+telnet_label = Label(ports_frame, text=' ::::: Telnet // 23', image=yellow, compound=LEFT)
+telnet_label.pack(anchor=W)
+smtp_label = Label(ports_frame, text=' ::::: SMTP // 25, 465, 587', image=yellow, compound=LEFT)
+smtp_label.pack(anchor=W)
+dns_label = Label(ports_frame, text=' ::::: DNS // 53', image=yellow, compound=LEFT)
+dns_label.pack(anchor=W)
+http_label = Label(ports_frame, text=' ::::: HTTP // 80, 443, 8080', image=yellow, compound=LEFT)
+http_label.pack(anchor=W)
+msrpc_label = Label(ports_frame, text=' ::::: MSRPC // 135, 593',image=yellow, compound=LEFT)
+msrpc_label.pack(anchor=W)
+netbios_label = Label(ports_frame, text=' ::::: Netbios // 137, 138, 139', image=yellow, compound=LEFT)
+netbios_label.pack(anchor=W)
+smb_label = Label(ports_frame, text=' ::::: SMB // 139, 445', image=yellow, compound=LEFT)
+smb_label.pack(anchor=W)
+
+
+
 #define labels 
 intro_1 = Label(intro_frame, text="This program conducts initial recon on a target.")
 intro_2 = Label(intro_frame, text="The program uses NMAP, Nikto, and Enum4Linux.")
@@ -312,7 +406,7 @@ nmap_out_frame = tkinter.Frame(nmap_tab)
 
 #ports tab content
 ftp_frame = Frame(ftp_tab)
-ssh_frame = Frame(ssh_tab)
+ssh_audit_frame = Frame(ssh_audit_tab)
 telnet_frame = Frame(telnet_tab)
 smtp_frame = Frame(smtp_tab)
 dns_frame = Frame(dns_tab)
@@ -320,11 +414,14 @@ http_frame = Frame(http_tab)
 msrpc_frame = Frame(msrpc_tab)
 netbios_frame = Frame(netbios_tab)
 smb_frame = Frame(smb_tab)
+wp_map_frame = Frame(wp_map_tab)
+
 
 #put frame on screen
 parent_tab.pack(expand=1, fill='both')
 intro_frame.pack()
 input_frame.pack()
+ports_frame.pack()
 #include_frame.pack()
 nmap_out_frame.pack(side='top', expand=True, fill='both')
 #nikto_out_frame.pack(side='top', expand=True, fill='both')
